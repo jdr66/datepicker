@@ -1,0 +1,63 @@
+.datepicker {
+  font-family: var(--font-geist-sans);
+  > button {
+    padding: 15px;
+    border-radius: 10px;
+  }
+  position: relative;
+  > .modal {
+    position: absolute;
+    width: max-content;
+    border: 1px solid grey;
+    h2,
+    h3 {
+      text-align: center;
+      span {
+        margin: 20px 5px;
+        cursor: pointer;
+      }
+      span:nth-child(2) {
+        width: 4ch;
+        cursor: default;
+        display: inline-block;
+        margin: auto;
+      }
+    }
+    h3 span:nth-child(2) {
+      width: 2ch;
+    }
+    div > span {
+      display: inline-block;
+      width: 26px;
+      height: 26px;
+      margin: 6px;
+      text-align: center;
+      cursor: default;
+      &:nth-child(n + 8) {
+        border: 1px solid grey;
+        cursor: pointer;
+      }
+      border-radius: 50%;
+      line-height: 26px;
+      &[aria-checked="true"] {
+        background-color: black;
+        color: white;
+      }
+    }
+    button {
+      padding: 10px;
+      border-radius: 6px;
+      margin: 10px;
+      float: left;
+      &:last-of-type {
+        float: right;
+      }
+    }
+  }
+
+  overflow: visible;
+}
+
+.hidden {
+  visibility: hidden;
+}
