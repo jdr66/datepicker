@@ -1,13 +1,33 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import styles from "./datePicker.module.css";
+import { getHolidaysByYear } from "@/app/api/publicHolidays";
+import RegionPicker from "../regionPicker/regionPicker";
 
 export default function DatePicker() {
   const [pickedDate, setPickedDate] = useState(new Date(Date.now()));
   const [shownDate, setShownDate] = useState(new Date(Date.now()));
   const [showModal, setShowModal] = useState(false);
   const [monthDays, setMonthDays] = useState([0]);
+  const [region, setRegion] = useState("GE");
+  const [holidays, setHolidays] = useState({} as holidayList);
+  const [monthHolidays, setMonthHolidays] = useState({} as holidayMonthList);
+
+  const fetchHolidays = async (year: number, month: number) => {
+    const data = await getHolidaysByYear(year);
+    setMonthHolidays(holidays[month]);
+    setHolidays(data);
+  };
+
+  useEffect(() => {
+    const sDate = new Date(shownDate);
+    fetchHolidays(sDate.getFullYear(), sDate.getMonth());
+  }, [fetchHolidays, shownDate]);
+
+  useEffect(() => {
+    getMonthInfo(shownDate.getFullYear(), shownDate.getMonth());
+  }, [region]);
 
   const openModal = () => {
     setShowModal(true);
@@ -31,10 +51,36 @@ export default function DatePicker() {
       curDays.push(i);
     }
     setMonthDays(curDays);
+    if (holidays) {
+      setMonthHolidays(holidays[month]);
+    }
     return dayCount;
   };
 
-  const incYearAndMonth = (yInc = 0, mInc = 0) => {
+  const getHoliday = (d: number) => {
+    if (monthHolidays) {
+      let h = monthHolidays[d];
+      if (h && (h.global || h.counties?.includes(`CH-${region}`))) {
+        return h;
+      }
+    }
+    return null;
+  };
+
+  const getClassName = (d: number, i: number) => {
+    if (d <= 0) {
+      return styles.hidden;
+    }
+    if (getHoliday(d)) {
+      return styles.holiday;
+    }
+    if ((i + 2) % 7 < 2) {
+      return styles.weekend;
+    }
+    return "";
+  };
+
+  const incYearAndMonth = async (yInc = 0, mInc = 0) => {
     const year = shownDate.getFullYear() + yInc;
     const month = shownDate.getMonth() + mInc;
     let day = shownDate.getDate();
@@ -49,6 +95,9 @@ export default function DatePicker() {
     <div className={styles.datepicker}>
       {showModal && (
         <div className={styles.modal}>
+          <p>
+            <RegionPicker region={region} setRegion={setRegion} />
+          </p>
           <h2>
             <span onClick={() => incYearAndMonth(-1)}>-</span>
             <span>{shownDate.getFullYear()}</span>
@@ -67,11 +116,16 @@ export default function DatePicker() {
             {monthDays.map((d, i) => (
               <Fragment key={`day${i}`}>
                 <span
-                  className={d > 0 ? "" : styles.hidden}
+                  className={getClassName(d, i)}
                   aria-checked={d === shownDate.getDate()}
                   onClick={() => changeDay(d)}
                 >
                   {d}
+                  {getHoliday(d) && (
+                    <span className={styles.tooltip}>
+                      {getHoliday(d)?.name}
+                    </span>
+                  )}
                 </span>
                 {i % 7 === 6 && <br />}
               </Fragment>

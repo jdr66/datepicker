@@ -33,6 +33,7 @@
       margin: 6px;
       text-align: center;
       cursor: default;
+      position: relative;
       &:nth-child(n + 8) {
         border: 1px solid grey;
         cursor: pointer;
@@ -60,4 +61,30 @@
 
 .hidden {
   visibility: hidden;
+}
+
+.weekend {
+  background-color: lightgreen;
+}
+
+.holiday {
+  background-color: darkgreen;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: teal;
+  transform: translate3d(100%, 100%, 0);
+  padding: 3px;
+  border-radius: 5px;
+  display: none;
+  color: white;
+  width: max-content;
+  font-size: 12px;
+  z-index: 123;
+}
+span:hover > .tooltip {
+  display: block;
 }
